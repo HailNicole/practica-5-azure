@@ -74,7 +74,6 @@ int main() {
     cout << "---------------------------------------------------" << endl;
 
     int num_hilos = omp_get_max_threads(); //Numero de Hilos de la VM
-    cout << "Maximo numero de hilos de la VM: " << num_hilos << endl; 
     
     cout << "\n --- Ejecución Dynamic chunk pequeño" << endl; 
     run_search(num_hilos, "Dynamic", 100);
