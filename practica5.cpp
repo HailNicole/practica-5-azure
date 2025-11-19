@@ -73,16 +73,13 @@ int main() {
     cout << "---------------------------------------------------" << endl;
 
     // 1. Ejecución Secuencial (1 Hilo)
-    run_search(1, "Secuencial", 0);
+    run_search(1, "Static", 100000000);
 
     // 2. Ejecución Paralela - Dynamic con Chunk Grande
-    run_search(4, "Dynamic", 10000); 
+    run_search(2, "Static", 50000000); 
 
     // 3. Ejecución Paralela - Dynamic con Chunk Pequeño
-    run_search(8, "Dynamic", 100); 
-    
-    // 4. Ejecución Paralela - Static (Carga equilibrada)
-    run_search(8, "Static", 0); 
+    run_search(2, "Dynamic", 1); 
     
     return 0;
 }
