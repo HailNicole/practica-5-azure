@@ -61,23 +61,12 @@ void run_search(int num_threads, const char* schedule_type, int chunk_size) {
     
     auto end = chrono::high_resolution_clock::now();
     chrono::duration<double> elapsed = end - start;
-    // Obtener schedule real usado por OMP_SCHEDULE=
-    omp_sched_t kind;
-    int chunk_used;
-    omp_get_schedule(&kind, &chunk_used);
 
-    cout << "Hilos: " << num_threads << endl;
-    cout << "Schedule: ";
-    
-    if (kind == omp_sched_static)  cout << "static";
-    if (kind == omp_sched_dynamic) cout << "dynamic";
-    if (kind == omp_sched_guided)  cout << "guided";
-    if (kind == omp_sched_auto)    cout << "auto";
-    if (kind == omp_sched_runtime) cout << "runtime";
-
-    cout << " (Chunk: " << chunk_used << ")" << endl;
-    cout << "Tiempo = " << elapsed.count() << " s" << endl;
-    cout << "Posición = " << first_index << endl << endl;
+    cout << "Hilos: " << num_threads 
+         << ", Schedule: " << schedule_type 
+         << " (Chunk: " << chunk_size << ")"
+         << ", Tiempo: " << elapsed.count() << " s" 
+         << ", Posición: " << first_index << endl;
 }
 
 int main() {
@@ -87,12 +76,7 @@ int main() {
     int num_hilos = omp_get_max_threads(); //Numero de Hilos de la VM
     cout << "Maximo numero de hilos de la VM: " << num_hilos << endl; 
     
-    // 1. Ejecución Secuencial (1 Hilo)
-    cout << "\n--- 1. Ejecución Secuencial" << endl; 
-    run_search(1, "Secuencial", 0);
-
-    // 2. Ejecución Paralela - Dynamic con Chunk Pequeño
-    cout << "\n--- 2. Ejecución Dynamic" << endl; 
+    cout << "\n --- Ejecución Dynamic chunk pequeño" << endl; 
     run_search(num_hilos, "Dynamic", 100);
     
     return 0;
