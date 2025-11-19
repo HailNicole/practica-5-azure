@@ -99,6 +99,22 @@ void run_search(int num_threads, const char* schedule_type, int chunk_size) {
             }
         }
 
+    } else if (strcmp(schedule_type, "Auto") == 0) {
+
+        #pragma omp parallel for schedule(auto)
+        for (int i = 0; i < N - P_LEN; ++i) {
+            if (first_index != -1) continue;
+            bool match = true;
+            for (int j = 0; j < P_LEN; ++j)
+                if (dna_sequence[i + j] != PATTERN[j]) { match = false; break; }
+
+            if (match) {
+                #pragma omp critical
+                if (first_index == -1 || i < first_index)
+                    first_index = i;
+            }
+        }
+
     }
 
     auto end = chrono::high_resolution_clock::now();
@@ -131,6 +147,8 @@ int main() {
     cout << "\n--- 6. Ejecución Guided ---" << endl; run_search(num_hilos, "Guided", 100); 
     // 7. Ejecución Paralela - Guided con Chunk Pequeño 
     cout << "\n--- 7. Ejecución Guided ---" << endl; run_search(num_hilos, "Guided", 10000000);
+    // 8. Ejecución Paralela - Auto
+    cout << "\n--- 6. Ejecución Guided ---" << endl; run_search(num_hilos, "Guided", 0); 
     
     return 0;
 }
