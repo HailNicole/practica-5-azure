@@ -32,7 +32,7 @@ void run_search(int num_threads, const char* schedule_type, int chunk_size) {
     auto start = chrono::high_resolution_clock::now();
     
     // PCAM: Partitioning y Agglomeration
-    #pragma omp parallel for schedule(runtime, chunk_size)
+    #pragma omp parallel for schedule(runtime)
     for (int i = 0; i < N - P_LEN; ++i) {
         
         // Si ya se encontró el índice, salimos rápidamente (optimización)
