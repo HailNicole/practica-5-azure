@@ -30,35 +30,76 @@ void run_search(int num_threads, const char* schedule_type, int chunk_size) {
     omp_set_num_threads(num_threads);
 
     auto start = chrono::high_resolution_clock::now();
-    
-    // PCAM: Partitioning y Agglomeration
-    #pragma omp parallel for schedule(runtime)
-    for (int i = 0; i < N - P_LEN; ++i) {
-        
-        // Si ya se encontró el índice, salimos rápidamente (optimización)
-        if (first_index != -1) continue; 
-        
-        // Buscar el patrón: Tarea computacional (Partitioning)
-        bool match = true;
-        for (int j = 0; j < P_LEN; ++j) {
-            if (dna_sequence[i + j] != PATTERN[j]) {
-                match = false;
-                break;
-            }
-        }
-        
-        // Si se encuentra, comunicar el resultado
-        if (match) {
-            #pragma omp critical
-            {
-                // Solo actualizamos si es la primera ocurrencia (índice más bajo)
-                if (first_index == -1 || i < first_index) {
+
+    // ================================
+    //     Selección del Schedule
+    // ================================
+    if (strcmp(schedule_type, "Secuencial") == 0) {
+
+        for (int i = 0; i < N - P_LEN; ++i) {
+
+            if (first_index != -1) continue;
+
+            bool match = true;
+            for (int j = 0; j < P_LEN; ++j)
+                if (dna_sequence[i + j] != PATTERN[j]) { match = false; break; }
+
+            if (match) {
+                if (first_index == -1 || i < first_index)
                     first_index = i;
-                }
             }
         }
+
+    } else if (strcmp(schedule_type, "Static") == 0) {
+
+        #pragma omp parallel for schedule(static, chunk_size)
+        for (int i = 0; i < N - P_LEN; ++i) {
+            if (first_index != -1) continue;
+            bool match = true;
+            for (int j = 0; j < P_LEN; ++j)
+                if (dna_sequence[i + j] != PATTERN[j]) { match = false; break; }
+
+            if (match) {
+                #pragma omp critical
+                if (first_index == -1 || i < first_index)
+                    first_index = i;
+            }
+        }
+
+    } else if (strcmp(schedule_type, "Dynamic") == 0) {
+
+        #pragma omp parallel for schedule(dynamic, chunk_size)
+        for (int i = 0; i < N - P_LEN; ++i) {
+            if (first_index != -1) continue;
+            bool match = true;
+            for (int j = 0; j < P_LEN; ++j)
+                if (dna_sequence[i + j] != PATTERN[j]) { match = false; break; }
+
+            if (match) {
+                #pragma omp critical
+                if (first_index == -1 || i < first_index)
+                    first_index = i;
+            }
+        }
+
+    } else if (strcmp(schedule_type, "Guided") == 0) {
+
+        #pragma omp parallel for schedule(guided, chunk_size)
+        for (int i = 0; i < N - P_LEN; ++i) {
+            if (first_index != -1) continue;
+            bool match = true;
+            for (int j = 0; j < P_LEN; ++j)
+                if (dna_sequence[i + j] != PATTERN[j]) { match = false; break; }
+
+            if (match) {
+                #pragma omp critical
+                if (first_index == -1 || i < first_index)
+                    first_index = i;
+            }
+        }
+
     }
-    
+
     auto end = chrono::high_resolution_clock::now();
     chrono::duration<double> elapsed = end - start;
 
@@ -74,9 +115,21 @@ int main() {
     cout << "---------------------------------------------------" << endl;
 
     int num_hilos = omp_get_max_threads(); //Numero de Hilos de la VM
-    
-    cout << "--- Ejecución Dynamic chunk grande ---" << endl; 
-    run_search(num_hilos, "Dynamic", 10000000);
+
+    // 1. Ejecución Secuencial (1 Hilo) 
+    cout << "1. Ejecución Secuencial" << endl; run_search(1, "Secuencial", 0); 
+    // 2. Ejecución Paralela - Dynamic con Chunk Pequeño 
+    cout << "\n--- 2. Ejecución Dynamic" << endl; run_search(num_hilos, "Dynamic", 100); 
+    // 3. Ejecución Paralela - Dynamic con Chunk Grande 
+    cout << "\n--- 3. Ejecución Dynamic" << endl; run_search(num_hilos, "Dynamic", 100000000); 
+    // 4. Ejecución Paralela - Static con Chunk Pequeño 
+    cout << "\n--- 4. Ejecución Static" << endl; run_search(num_hilos, "Static", 500); 
+    // 5. Ejecución Paralela - Static con Chunk Grande 
+    cout << "\n--- 5. Ejecución Static" << endl; run_search(num_hilos, "Static", 50000000); 
+    // 6. Ejecución Paralela - Guided con Chunk Pequeño 
+    cout << "\n--- 6. Ejecución Guided" << endl; run_search(num_hilos, "Guided", 100); 
+    // 7. Ejecución Paralela - Guided con Chunk Pequeño 
+    cout << "\n--- 7. Ejecución Guided" << endl; run_search(num_hilos, "Guided", 10000000);
     
     return 0;
 }
