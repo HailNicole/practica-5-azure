@@ -148,7 +148,7 @@ int main() {
     // 7. Ejecución Paralela - Guided con Chunk Pequeño 
     cout << "\n--- 7. Ejecución Guided ---" << endl; run_search(num_hilos, "Guided", 10000000);
     // 8. Ejecución Paralela - Auto
-    cout << "\n--- 6. Ejecución Auto ---" << endl; run_search(num_hilos, "Auto", 0); 
+    cout << "\n--- 8. Ejecución Auto ---" << endl; run_search(num_hilos, "Auto", 0); 
     
     return 0;
 }
