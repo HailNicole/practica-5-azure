@@ -3,14 +3,16 @@
 #include <string>
 #include <omp.h>
 #include <chrono>
+
 #define N 100000000 // Tamaño de la secuencia
 const std::string PATTERN = "ATGC"; // Patrón a buscar
 const int P_LEN = PATTERN.length();
 using namespace std;
+
 // Función para simular una secuencia grande
 void generate_sequence(vector<char>& seq) {
     // Rellenamos con bases aleatorias para simular una carga de trabajo real
-    // Insertamos el patrón cerca del final para forzar la búsqueda larga
+    srand(time(0));
     for (int i = 0; i < N - P_LEN; ++i) {
         seq[i] = "ATGC"[rand() % 4];
     }
@@ -19,17 +21,22 @@ void generate_sequence(vector<char>& seq) {
         seq[N - 10000 + i] = PATTERN[i]; 
     }
 }
+
 void run_search(int num_threads, const char* schedule_type, int chunk_size) {
     vector<char> dna_sequence(N);
     generate_sequence(dna_sequence);
     long long first_index = -1; 
     omp_set_num_threads(num_threads);
+
     auto start = chrono::high_resolution_clock::now();
-    //PCAM: Partitioning y Agglomeration
+    
+    // PCAM: Partitioning y Agglomeration
     #pragma omp parallel for schedule(dynamic, chunk_size)
     for (int i = 0; i < N - P_LEN; ++i) {
+        
         // Si ya se encontró el índice, salimos rápidamente (optimización)
         if (first_index != -1) continue; 
+        
         // Buscar el patrón: Tarea computacional (Partitioning)
         bool match = true;
         for (int j = 0; j < P_LEN; ++j) {
@@ -38,6 +45,7 @@ void run_search(int num_threads, const char* schedule_type, int chunk_size) {
                 break;
             }
         }
+        
         // Si se encuentra, comunicar el resultado
         if (match) {
             #pragma omp critical
@@ -49,23 +57,32 @@ void run_search(int num_threads, const char* schedule_type, int chunk_size) {
             }
         }
     }
+    
     auto end = chrono::high_resolution_clock::now();
     chrono::duration<double> elapsed = end - start;
-
+    
     cout << "Hilos: " << num_threads 
          << ", Schedule: " << schedule_type 
-         << " (" << chunk_size << ")"
+         << " (Chunk: " << chunk_size << ")"
          << ", Tiempo: " << elapsed.count() << " s" 
          << ", Posición: " << first_index << endl;
 }
+
 int main() {
     cout << "--- Búsqueda de Patron en ADN (" << PATTERN << ") ---" << endl;
-##############################
-run_search();
-run_search();
-run_search();
-run_search(); 
-#############################
+    cout << "---------------------------------------------------" << endl;
+
+    // 1. Ejecución Secuencial (1 Hilo)
+    run_search(1, "Secuencial", 0);
+
+    // 2. Ejecución Paralela - Dynamic con Chunk Grande
+    run_search(4, "Dynamic", 10000); 
+
+    // 3. Ejecución Paralela - Dynamic con Chunk Pequeño
+    run_search(8, "Dynamic", 100); 
+    
+    // 4. Ejecución Paralela - Static (Carga equilibrada)
+    run_search(8, "Static", 0); 
+    
     return 0;
 }
-
