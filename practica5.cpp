@@ -75,7 +75,7 @@ int main() {
 
     int num_hilos = omp_get_max_threads(); //Numero de Hilos de la VM
     
-    cout << "\n --- Ejecución Dynamic chunk grande" << endl; 
+    cout << "--- Ejecución Dynamic chunk grande ---" << endl; 
     run_search(num_hilos, "Dynamic", 10000000);
     
     return 0;
