@@ -3,6 +3,7 @@
 #include <string>
 #include <omp.h>
 #include <chrono>
+#include <cstring>
 
 #define N 100000000 // Tamaño de la secuencia
 const std::string PATTERN = "ATGC"; // Patrón a buscar
