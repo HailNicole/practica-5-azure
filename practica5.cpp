@@ -61,12 +61,24 @@ void run_search(int num_threads, const char* schedule_type, int chunk_size) {
     
     auto end = chrono::high_resolution_clock::now();
     chrono::duration<double> elapsed = end - start;
+    // Obtener schedule real usado por OMP_SCHEDULE=
+    omp_sched_t kind;
+    int chunk_used;
+    omp_get_schedule(&kind, &chunk_used);
+
+    cout << "Hilos: " << num_threads << endl;
+    cout << "Etiqueta: " << schedule_label << endl;
+    cout << "Schedule: ";
     
-    cout << "Hilos: " << num_threads 
-         << ", Schedule: " << schedule_type 
-         << " (Chunk: " << chunk_size << ")"
-         << ", Tiempo: " << elapsed.count() << " s" 
-         << ", Posición: " << first_index << endl;
+    if (kind == omp_sched_static)  cout << "static";
+    if (kind == omp_sched_dynamic) cout << "dynamic";
+    if (kind == omp_sched_guided)  cout << "guided";
+    if (kind == omp_sched_auto)    cout << "auto";
+    if (kind == omp_sched_runtime) cout << "runtime";
+
+    cout << " (Chunk: " << chunk_used << ")" << endl;
+    cout << "Tiempo = " << elapsed.count() << " s" << endl;
+    cout << "Posición = " << first_index << endl << endl;
 }
 
 int main() {
@@ -82,27 +94,7 @@ int main() {
 
     // 2. Ejecución Paralela - Dynamic con Chunk Pequeño
     cout << "\n--- 2. Ejecución Dynamic" << endl; 
-    run_search(2, "Dynamic", 100);
-
-    // 3. Ejecución Paralela - Dynamic con Chunk Grande
-    cout << "\n--- 3. Ejecución Dynamic" << endl; 
-    run_search(num_hilos, "Dynamic", 100000000);
-
-    // 4. Ejecución Paralela - Static con Chunk Pequeño
-    cout << "\n--- 4. Ejecución Static" << endl; 
-    run_search(2, "Static", 500);
-
-    // 5. Ejecución Paralela - Static con Chunk Grande
-    cout << "\n--- 5. Ejecución Static" << endl; 
-    run_search(num_hilos, "Static", 50000000);
-
-    // 6. Ejecución Paralela - Guided con Chunk Pequeño
-    cout << "\n--- 6. Ejecución Guided" << endl; 
-    run_search(2, "Guided", 100);
-
-    // 7. Ejecución Paralela - Guided con Chunk Pequeño
-    cout << "\n--- 7. Ejecución Guided" << endl; 
-    run_search(num_hilos, "Guided", 10000000);
+    run_search(num_hilos, "Dynamic", 100);
     
     return 0;
 }
