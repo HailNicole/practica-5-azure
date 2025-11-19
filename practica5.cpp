@@ -12,6 +12,7 @@ using namespace std;
 // Función para simular una secuencia grande
 void generate_sequence(vector<char>& seq) {
     // Rellenamos con bases aleatorias para simular una carga de trabajo real
+    // Insertamos el patrón cerca del final para forzar la búsqueda larga
     srand(time(0));
     for (int i = 0; i < N - P_LEN; ++i) {
         seq[i] = "ATGC"[rand() % 4];
@@ -31,7 +32,7 @@ void run_search(int num_threads, const char* schedule_type, int chunk_size) {
     auto start = chrono::high_resolution_clock::now();
     
     // PCAM: Partitioning y Agglomeration
-    #pragma omp parallel for schedule(dynamic, chunk_size)
+    #pragma omp parallel for schedule(runtime, chunk_size)
     for (int i = 0; i < N - P_LEN; ++i) {
         
         // Si ya se encontró el índice, salimos rápidamente (optimización)
@@ -72,14 +73,36 @@ int main() {
     cout << "--- Búsqueda de Patron en ADN (" << PATTERN << ") ---" << endl;
     cout << "---------------------------------------------------" << endl;
 
+    int num_hilos = omp_get_max_threads(); //Numero de Hilos de la VM
+    cout << "Maximo numero de hilos de la VM: " << num_hilos << endl; 
+    
     // 1. Ejecución Secuencial (1 Hilo)
-    run_search(1, "Static", 100000000);
+    cout << "\n--- 1. Ejecución Secuencial" << endl; 
+    run_search(1, "Secuencial", 0);
 
-    // 2. Ejecución Paralela - Dynamic con Chunk Grande
-    run_search(2, "Static", 50000000); 
+    // 2. Ejecución Paralela - Dynamic con Chunk Pequeño
+    cout << "\n--- 2. Ejecución Dynamic" << endl; 
+    run_search(2, "Dynamic", 100);
 
-    // 3. Ejecución Paralela - Dynamic con Chunk Pequeño
-    run_search(2, "Dynamic", 1); 
+    // 3. Ejecución Paralela - Dynamic con Chunk Grande
+    cout << "\n--- 3. Ejecución Dynamic" << endl; 
+    run_search(num_hilos, "Dynamic", 100000000);
+
+    // 4. Ejecución Paralela - Static con Chunk Pequeño
+    cout << "\n--- 4. Ejecución Static" << endl; 
+    run_search(2, "Static", 500);
+
+    // 5. Ejecución Paralela - Static con Chunk Grande
+    cout << "\n--- 5. Ejecución Static" << endl; 
+    run_search(num_hilos, "Static", 50000000);
+
+    // 6. Ejecución Paralela - Guided con Chunk Pequeño
+    cout << "\n--- 6. Ejecución Guided" << endl; 
+    run_search(2, "Guided", 100);
+
+    // 7. Ejecución Paralela - Guided con Chunk Pequeño
+    cout << "\n--- 7. Ejecución Guided" << endl; 
+    run_search(num_hilos, "Guided", 10000000);
     
     return 0;
 }
