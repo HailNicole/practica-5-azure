@@ -118,19 +118,19 @@ int main() {
     int num_hilos = omp_get_max_threads(); //Numero de Hilos de la VM
 
     // 1. Ejecución Secuencial (1 Hilo) 
-    cout << "1. Ejecución Secuencial" << endl; run_search(1, "Secuencial", 0); 
+    cout << "--- 1. Ejecución Secuencial ---" << endl; run_search(1, "Secuencial", 0); 
     // 2. Ejecución Paralela - Dynamic con Chunk Pequeño 
-    cout << "\n--- 2. Ejecución Dynamic" << endl; run_search(num_hilos, "Dynamic", 100); 
+    cout << "\n--- 2. Ejecución Dynamic ---" << endl; run_search(num_hilos, "Dynamic", 100); 
     // 3. Ejecución Paralela - Dynamic con Chunk Grande 
-    cout << "\n--- 3. Ejecución Dynamic" << endl; run_search(num_hilos, "Dynamic", 100000000); 
+    cout << "\n--- 3. Ejecución Dynamic ---" << endl; run_search(num_hilos, "Dynamic", 100000000); 
     // 4. Ejecución Paralela - Static con Chunk Pequeño 
-    cout << "\n--- 4. Ejecución Static" << endl; run_search(num_hilos, "Static", 500); 
+    cout << "\n--- 4. Ejecución Static ---" << endl; run_search(num_hilos, "Static", 500); 
     // 5. Ejecución Paralela - Static con Chunk Grande 
-    cout << "\n--- 5. Ejecución Static" << endl; run_search(num_hilos, "Static", 50000000); 
+    cout << "\n--- 5. Ejecución Static ---" << endl; run_search(num_hilos, "Static", 50000000); 
     // 6. Ejecución Paralela - Guided con Chunk Pequeño 
-    cout << "\n--- 6. Ejecución Guided" << endl; run_search(num_hilos, "Guided", 100); 
+    cout << "\n--- 6. Ejecución Guided ---" << endl; run_search(num_hilos, "Guided", 100); 
     // 7. Ejecución Paralela - Guided con Chunk Pequeño 
-    cout << "\n--- 7. Ejecución Guided" << endl; run_search(num_hilos, "Guided", 10000000);
+    cout << "\n--- 7. Ejecución Guided ---" << endl; run_search(num_hilos, "Guided", 10000000);
     
     return 0;
 }
