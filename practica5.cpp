@@ -67,7 +67,6 @@ void run_search(int num_threads, const char* schedule_type, int chunk_size) {
     omp_get_schedule(&kind, &chunk_used);
 
     cout << "Hilos: " << num_threads << endl;
-    cout << "Etiqueta: " << schedule_label << endl;
     cout << "Schedule: ";
     
     if (kind == omp_sched_static)  cout << "static";
